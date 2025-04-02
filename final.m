@@ -21,14 +21,24 @@ nb = nanobot('COM3', 115200, 'serial');
 %% MAIN
 n = input('Enter a number: '); %Should be based on magic wand
 
-init_all();
+init_all(nb);
 
 switch n
-    case -1
+    case 0
         % Line Follow
         disp('Line Following')
-        linefollow()
-    case 0
+        rotate()
+        line_follow(nb)
+        wall_follow()
+        rotate()
+        line_follow()
+        line_follow()
+        line_follow()
+        rotate()
+        line_follow()
+        rotate()
+        odometry()
+    case 1
         % Wall Follow
         disp('Wall Following')
         utils.turnTillLine()
@@ -38,29 +48,6 @@ switch n
         % Panic
         disp('!!!!')
 end
-%% FUNCTION: WALL FOLLOWING
-%  --Uses 2 ultrasonic sensors
-
-% Advancing
-
-% Wall follwing and Stop Condition
-
-
-%% FUNCTION: ODOMETRY
-%  --Uses RGB color sensors
-
-% Encoder Conversion
-
-% Straight-line Odometry
-
-% Angular Odometry
-
-% Motor Speed Capping
-
-% Color Sensing
-val = nb.encoderRead(1); %substitute 1 with 2 for second encoder
-fprintf('counts since last read: %i, counts per second: %i\n',val.counts,val.countspersec);
-
 
 %% DISCONNECT
 %  Clears the workspace and command window, then
@@ -72,9 +59,9 @@ clear('nb');
 clear all
 
 %% LOCAL FUNCTIONS
-function init_all()
+function init_all(nb)
     % Initialize the reflectance array
     nb.initReflectance();
     % Initialize the ultrasonic sensor with TRIGPIN, ECHOPIN
-    nb.initUltrasonic('D2','D3') % Use any of the digital pins, ex. D8, D7
+    %nb.initUltrasonic('D2','D3') % Use any of the digital pins, ex. D8, D7
 end

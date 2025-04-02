@@ -17,8 +17,8 @@ function line_follow(nb)
     % Start small (ESPECIALLY with the reflectance values, error can range 
     % from zero to several thousand!).
     % Tip: when tuning kd, it must be the opposite sign of kp to damp
-    kp = 3;
-    ki = 0.1;
+    kp = 1;
+    ki = 0.001;
     kd = -0.026;
     
     % Basic initialization
@@ -45,7 +45,7 @@ function line_follow(nb)
     nb.setMotor(1, mOffScale * 12);
     nb.setMotor(2, -12);
     pause(0.03);
-    while (toc < 15)  % Adjust me if you want to stop your line following 
+    while (toc < 5)  % Adjust me if you want to stop your line following 
                  % earlier, or let it run longer.
     
     % TIME STEP
@@ -65,7 +65,7 @@ function line_follow(nb)
             calibratedVals(i) = 0;
         end
         if vals(i) > maxVals(i)
-            calibratedVals(i) = 3;
+            calibratedVals(i) = maxVals(i);
         end
     end
     
@@ -75,7 +75,7 @@ function line_follow(nb)
     % where the line is detected. This is similar to the error term we used
     % in the Sensors Line Detection Milestone. (Use the calibrated values 
     % to determine the error.)
-    error = 2*calibratedVals(1) + 1.2*calibratedVals(2) + 0.2*calibratedVals(3) - 0.2*calibratedVals(4) - 1.2*calibratedVals(5) - 2*calibratedVals(6);
+    error = 0.7*calibratedVals(1) + 0.3*calibratedVals(2) + 0.2*calibratedVals(3) - 0.2*calibratedVals(4) - 0.3*calibratedVals(5) - 0.7*calibratedVals(6);
     
     % Calculate I and D terms
     integral = integral + error*dt;
@@ -83,7 +83,7 @@ function line_follow(nb)
     derivative = (error-prevError)/dt;
     
     % Set PID
-    control = (kp*error+ki*integral+kd*derivative);
+    control = (kp*error+ki*integral+kd*derivative)/20;
     fprintf('Control - %.2f \n', control)
     
     % STATE CHECKING - stops robot if all sensors read white (lost tracking):
@@ -94,8 +94,9 @@ function line_follow(nb)
             vals(5) < whiteThresh && ...
             vals(6) < whiteThresh)
         % Stop the motors and exit the while loop
-        nb.setMotor(1, -(mOffScale * motorBaseSpeed));
-        nb.setMotor(2, motorBaseSpeed);
+        nb.setMotor(1, 0);
+        nb.setMotor(2, 0);
+        break;
     else
         % LINE DETECTED:
         
