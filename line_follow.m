@@ -2,8 +2,6 @@
 %  --Uses IR sensor array
 function line_follow()
     % Read reflectance array values
-    % First initialize the reflectance array.
-    nb.initReflectance();
     % Get a reading
     vals = nb.reflectanceRead();
     
@@ -100,8 +98,8 @@ function line_follow()
         % Remember, we want to travel around a fixed speed down the line,
         % and the control should make minor adjustments that allow the
         % robot to stay centered on the line as it moves.
-        m1Duty = mOffScale * motorBaseSpeed + control;
-        m2Duty = -motorBaseSpeed - control;
+        m1Duty = (mOffScale * motorBaseSpeed) + control;
+        m2Duty = -(motorBaseSpeed - control);
        
         % If you're doing something with encoders to derive control, you
         % may want to make sure the duty cycles of the motors don't exceed
@@ -116,3 +114,10 @@ function line_follow()
     nb.setMotor(1, 0);
     nb.setMotor(2, 0);
 end
+
+%% SAMPLE PSUEDOCODE: LINE FOLLOWING
+% Define a motor speed compensation factor if needed
+% Set up PID loop
+	% After reading data from the necessary sensors, you should check important states for the robot (e.g. reading all black, meaning a stop was encountered, or all white, meaning you lost the line) and handle them appropriately.
+	% Error should be calculated such that the robot seeks to center the reflectance array on the line
+	% The robot should move at a specified speed forward, and use the control signal adjust the speed to each motor to turn and keep itself on the line

@@ -11,7 +11,6 @@ classdef utils
         %reflectance sensor reads a  line detected condition.
         function turnTillLine()
            disp('meow');
-           meow=69;
         end
         
         %kickMotors(): briefly sets the motors to a high duty cycle before returning 
