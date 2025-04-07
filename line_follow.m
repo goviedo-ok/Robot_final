@@ -42,8 +42,7 @@ function line_follow(nb)
     % for a very brief moment, just to overcome the gearbox force of static
     % friction so that lower duty cycles don't stall out at the start.
     % (recommendation: 10, with mOffScale if needed)
-    nb.setMotor(1, mOffScale * 12);
-    nb.setMotor(2, -12);
+    utils.kickMotors(nb)
     pause(0.03);
     while (toc < 15)  % Adjust me if you want to stop your line following 
                  % earlier, or let it run longer.

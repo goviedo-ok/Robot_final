@@ -40,10 +40,15 @@ switch n
         odometry()
     case 1
         % Wall Follow
+        tic
+        while(toc<1)
+        front = nb.ultrasonicRead1();
+        side = nb.ultrasonicRead2();
+        %Take a single ultrasonic reading
+        fprintf('Front dist = %0.0f   Side dist = %0.0f\n', front, left);
+        end
         disp('Wall Following')
-        utils.turnTillLine()
-        values = [12.7, 45.4, 98.9, 26.6, 53.1];
-        [ave,stdev] = utils.stat(values);
+        wall_follow(nb)
     otherwise
         % Panic
         disp('!!!!')
@@ -63,5 +68,8 @@ function init_all(nb)
     % Initialize the reflectance array
     nb.initReflectance();
     % Initialize the ultrasonic sensor with TRIGPIN, ECHOPIN
-    %nb.initUltrasonic('D2','D3') % Use any of the digital pins, ex. D8, D7
+    % Front Face
+    nb.initUltrasonic1('D4','D5') % Use any of the digital pins, ex. D8, D7
+    % Side Face
+    nb.initUltrasonic2('D3','D7')
 end

@@ -16,8 +16,9 @@ classdef utils
         %kickMotors(): briefly sets the motors to a high duty cycle before returning 
         %to modify the duty cycle in a function that calls it. Helps to break the 
         %static friction of the gearbox so that the motor can operate at lower duty cycles.
-        function kickMotors()
-        
+        function kickMotors(nb, mOffScale)
+            nb.setMotor(1, mOffScale * 12);
+            nb.setMotor(2, -12);
         end
         
         %attemptCenter(): once a line is detected under the reflectance array, 
@@ -27,11 +28,30 @@ classdef utils
         
         end
         
-        %initAllSensors(): an all-in-one function to initialize the needed sensors 
-        %that you can run once at the start of your program.
-        
         %approachWall(): drives in a straight line until the front ultrasonic 
         %sensor reads below a certain value.
+        function approachWall(nb)
+            mOffScale = 0.95; % Start with 1 so both motors have same duty cycle.
+
+            motorBaseSpeed = 11;
+            
+            % Set the duty cycle of each motor
+            m1Duty = mOffScale * motorBaseSpeed;
+            m2Duty = -motorBaseSpeed;
+            
+            tic
+            nb.setMotor(1, mOffScale * 12);
+            nb.setMotor(2, -12);
+            pause(0.03);
+            while (nb.ultrasonicRead1 > 428) % adjust the time to test if robot goes in straight line
+                            % (shorter time saves battery; or longer tests longer path)
+                nb.setMotor(1, m1Duty);
+                nb.setMotor(2, m2Duty);
+            end
+            % Turn off the motors
+            nb.setMotor(1, 0);
+            nb.setMotor(2, 0);
+        end
         
         %setMotorsToZero(): sets the motors on the robot to 0% duty cycle
         function setMotorsToZero

@@ -8,7 +8,6 @@ function wall_follow(nb)
     minRange = 90;
     maxRange = 1400;
     
-    
     % Set the motor offset factor (use the value you found earlier)
     mOffScale = 1.13;
     
@@ -28,13 +27,13 @@ function wall_follow(nb)
     % (recommended values are 9 or 10)
     motorBaseSpeed = 11;
 
-    %utils.approachWall(nb)
+    utils.approachWall(nb)
     
     tic
     utils.kickMotors(nb,mOffScale)
-    pause(0.1);
+    pause(0.03);
     % Advancing
-    while (toc < 10)
+    while (toc < 5)
         % TIME STEP
         dt = toc - prevTime;
         prevTime = toc;
@@ -43,14 +42,8 @@ function wall_follow(nb)
         cmVal = pulseVal / avgScaleFactor;
         fprintf("Last read: %0.1f cm\n",cmVal); 
 
-        if (pulseVal < minRange)
-            pulseVal = minRange;
-        end
-        if (pulseVal > maxRange)
-            pulseVal = maxRange;
-        end
-        error = round(interp1([minRange,maxRange], [-2.5,2.5] , pulseVal));
-        
+        error = pulseVal - 428
+        round(interp1([minRange,maxRange], [0,motorBaseSpeed] , pulseVal));
         %round(interp1([minRange,maxRange], [0,motorBaseSpeed] , pulseVal)); % linear interpolation based on custom data. HINT: see lab3 or lab4's use of it
         
         % Calculate I and D terms
@@ -60,10 +53,10 @@ function wall_follow(nb)
     
         % Set PID
         control = (kp*error+ki*integral+kd*derivative);
-        fprintf('Control: %.2f \n', control)
+        fprintf('Control - %.2f \n', control)
 
         m1Duty = (mOffScale * motorBaseSpeed) + control;
-        m2Duty = -(motorBaseSpeed-1.6);
+        m2Duty = -(motorBaseSpeed - 2);
 
         nb.setMotor(1, m1Duty);
         nb.setMotor(2, m2Duty);
