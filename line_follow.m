@@ -93,8 +93,21 @@ function line_follow(nb)
             vals(5) < whiteThresh && ...
             vals(6) < whiteThresh)
         % Stop the motors and exit the while loop
-        nb.setMotor(1, -(mOffScale * motorBaseSpeed));
-        nb.setMotor(2, motorBaseSpeed);
+        while(control > 100) {
+            nb.setMotor(1, -(mOffScale * motorBaseSpeed));
+            nb.setMotor(2, motorBaseSpeed);
+        }
+        end
+    elseif(vals(1) < blackThresh && ...
+            vals(2) < blackThresh && ...
+            vals(3) < blackThresh && ...
+            vals(4) < blackThresh && ...
+            vals(5) < blackThresh && ...
+            vals(6) < blackThresh)
+    {
+            
+    
+    }
     else
         % LINE DETECTED:
         
