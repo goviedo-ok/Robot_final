@@ -1,18 +1,26 @@
 %% FUNCTION: ODOMETRY
 %  --Uses RGB color sensors
-
-% Encoder Conversion
-
-% Straight-line Odometry
-
-% Angular Odometry
-
-% Motor Speed Capping
-
-% Color Sensing
-val = nb.encoderRead(1); %substitute 1 with 2 for second encoder
-fprintf('counts since last read: %i, counts per second: %i\n',val.counts,val.countspersec);
-
+function odometry(nb)
+    % Color Sensing
+    %Take a single RGB color sensor reading
+    values = nb.colorRead();
+    
+    %The sensor values are saved as fields in a structure:
+    red = values.red;
+    green = values.green;
+    blue = values.blue;
+    fprintf('red: %.2f, green: %.2f, blue: %.2f\n', red, green, blue);
+    
+    % Encoder Conversion
+    
+    % Straight-line Odometry
+    
+    % Angular Odometry
+    
+    % Motor Speed Capping
+    val = nb.encoderRead(1); %substitute 1 with 2 for second encoder
+    fprintf('counts since last read: %i, counts per second: %i\n',val.counts,val.countspersec);
+end
 %% SAMPLE PSUEDOCODE: ODOMETRY
 %(Straight-line)
 % Set up PID loop

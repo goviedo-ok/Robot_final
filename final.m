@@ -31,6 +31,11 @@ switch n
         line_follow(nb)
         wall_follow()
         rotate()
+        while(true)
+            if utils.onLine()
+                contiue
+            end
+        end
         line_follow()
         line_follow()
         line_follow()
@@ -45,10 +50,12 @@ switch n
         front = nb.ultrasonicRead1();
         side = nb.ultrasonicRead2();
         %Take a single ultrasonic reading
-        fprintf('Front dist = %0.0f   Side dist = %0.0f\n', front, left);
+        %fprintf('Front dist = %0.0f   Side dist = %0.0f\n', front, side);
+        pause(0.01)
         end
         disp('Wall Following')
-        wall_follow(nb)
+        line_follow(nb)
+        %wall_follow(nb)
     otherwise
         % Panic
         disp('!!!!')
@@ -69,7 +76,9 @@ function init_all(nb)
     nb.initReflectance();
     % Initialize the ultrasonic sensor with TRIGPIN, ECHOPIN
     % Front Face
-    nb.initUltrasonic1('D4','D5') % Use any of the digital pins, ex. D8, D7
+    nb.initUltrasonic1('D2','D3') % Use any of the digital pins, ex. D8, D7
     % Side Face
-    nb.initUltrasonic2('D3','D7')
+    nb.initUltrasonic2('D4','D5')
+    % Color sensor
+    nb.initColor();
 end

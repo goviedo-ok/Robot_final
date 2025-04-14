@@ -28,13 +28,13 @@ function wall_follow(nb)
     % (recommended values are 9 or 10)
     motorBaseSpeed = 11;
 
-    %utils.approachWall(nb)
+    utils.approachWall(nb)
     
     tic
     utils.kickMotors(nb,mOffScale)
     pause(0.1);
     % Advancing
-    while (toc < 10)
+    while (toc < 5)
         % TIME STEP
         dt = toc - prevTime;
         prevTime = toc;

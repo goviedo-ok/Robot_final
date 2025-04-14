@@ -7,12 +7,13 @@ classdef utils
             s = sqrt(sum((x-m).^2/n));
         end
         
-        function rotate(nb, moffScale, direction)
-           %Right
-           if (direction == 1)
+        %turnTillLine(): turns in place (center of mass doesn%t move) until the 
+        %reflectance sensor reads a  line detected condition.
+        function rotate(nb, direction)
+           if direction == 'right'
                nb.setMotor(1, moffScale * 12)
-           %Left
-           elseif (direction == -1)
+           end
+           if direction == 'right'
                nb.setMotor(2, moffScale * 12)
            end
         end
@@ -21,9 +22,8 @@ classdef utils
         %to modify the duty cycle in a function that calls it. Helps to break the 
         %static friction of the gearbox so that the motor can operate at lower duty cycles.
         function kickMotors(nb, mOffScale)
-            nb.setMotor(1, mOffScale * 13);
-            nb.setMotor(2, -13);
-            pause(0.3)
+            nb.setMotor(1, mOffScale * 12);
+            nb.setMotor(2, -12);
         end
         
         %attemptCenter(): once a line is detected under the reflectance array, 
@@ -48,7 +48,7 @@ classdef utils
             nb.setMotor(1, mOffScale * 12);
             nb.setMotor(2, -12);
             pause(0.03);
-            while (nb.ultrasonicRead1 > 1200) % adjust the time to test if robot goes in straight line
+            while (nb.ultrasonicRead1 > 428) % adjust the time to test if robot goes in straight line
                             % (shorter time saves battery; or longer tests longer path)
                 nb.setMotor(1, m1Duty);
                 nb.setMotor(2, m2Duty);

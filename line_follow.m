@@ -17,7 +17,7 @@ function line_follow(nb)
     % Start small (ESPECIALLY with the reflectance values, error can range 
     % from zero to several thousand!).
     % Tip: when tuning kd, it must be the opposite sign of kp to damp
-    kp = 3;
+    kp = 2.5;
     ki = 0.1;
     kd = -0.026;
     
@@ -32,6 +32,7 @@ function line_follow(nb)
     % (will be used as a threshold for all sensors to know if the robot has 
     % lost the line)
     whiteThresh = 260; % Max value detected for all white
+    blackThresh = 850;
     
     % The base duty cycle "speed" you wish to travel down the line with
     % (recommended values are 9 or 10)
@@ -42,9 +43,10 @@ function line_follow(nb)
     % for a very brief moment, just to overcome the gearbox force of static
     % friction so that lower duty cycles don't stall out at the start.
     % (recommendation: 10, with mOffScale if needed)
-    utils.kickMotors(nb)
+    utils.kickMotors(nb, mOffScale)
     pause(0.03);
-    while (toc < 15)  % Adjust me if you want to stop your line following 
+    running = true;
+    while (running == true)  % Adjust me if you want to stop your line following 
                  % earlier, or let it run longer.
     
     % TIME STEP
@@ -74,7 +76,7 @@ function line_follow(nb)
     % where the line is detected. This is similar to the error term we used
     % in the Sensors Line Detection Milestone. (Use the calibrated values 
     % to determine the error.)
-    error = 2*calibratedVals(1) + 1.2*calibratedVals(2) + 0.2*calibratedVals(3) - 0.2*calibratedVals(4) - 1.2*calibratedVals(5) - 2*calibratedVals(6);
+    error = 1*calibratedVals(1) + 0.6*calibratedVals(2) + 0.2*calibratedVals(3) - 0.2*calibratedVals(4) - 0.6*calibratedVals(5) - 1*calibratedVals(6);
     
     % Calculate I and D terms
     integral = integral + error*dt;
@@ -93,21 +95,19 @@ function line_follow(nb)
             vals(5) < whiteThresh && ...
             vals(6) < whiteThresh)
         % Stop the motors and exit the while loop
-        while(control > 100) {
-            nb.setMotor(1, -(mOffScale * motorBaseSpeed));
-            nb.setMotor(2, motorBaseSpeed);
-        }
+        disp('all white')
+        while(control > 1) 
+            nb.setMotor(1, (mOffScale * motorBaseSpeed));
+            nb.setMotor(2, -motorBaseSpeed);
         end
-    elseif(vals(1) < blackThresh && ...
-            vals(2) < blackThresh && ...
-            vals(3) < blackThresh && ...
-            vals(4) < blackThresh && ...
-            vals(5) < blackThresh && ...
-            vals(6) < blackThresh)
-    {
-            
-    
-    }
+    elseif(vals(1) > blackThresh && ...
+            vals(2) > blackThresh && ...
+            vals(3) > blackThresh && ...
+            vals(4) > blackThresh && ...
+            vals(5) > blackThresh && ...
+            vals(6) > blackThresh)  
+        running = false;
+        disp('line follow stopped')
     else
         % LINE DETECTED:
         
@@ -129,6 +129,7 @@ function line_follow(nb)
     end
     nb.setMotor(1, 0);
     nb.setMotor(2, 0);
+    pause(2);
 end
 
 %% SAMPLE PSUEDOCODE: LINE FOLLOWING
