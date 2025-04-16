@@ -37,6 +37,7 @@ function line_follow(nb)
     % The base duty cycle "speed" you wish to travel down the line with
     % (recommended values are 9 or 10)
     motorBaseSpeed = 11;
+    maxEncoderDuty = 2;
     
     tic
     % It can be helpful to initialize your motors to a fixed higher duty cycle
@@ -66,7 +67,7 @@ function line_follow(nb)
             calibratedVals(i) = 0;
         end
         if vals(i) > maxVals(i)
-            calibratedVals(i) = 3;
+            calibratedVals(i) = maxVals(i);
         end
     end
     
@@ -85,6 +86,12 @@ function line_follow(nb)
     
     % Set PID
     control = (kp*error+ki*integral+kd*derivative);
+    if control > maxEncoderDuty
+        control = maxEncoderDuty;
+    end 
+    if control < -maxEncoderDuty
+        control = -maxEncoderDuty;
+    end
     fprintf('Control - %.2f \n', control)
     
     % STATE CHECKING - stops robot if all sensors read white (lost tracking):

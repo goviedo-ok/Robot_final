@@ -25,24 +25,32 @@ init_all(nb);
 
 switch n
     case 0
-        % Line Follow
-        disp('Line Following')
-        rotate()
+        % Wall Follow First
+        disp('Wall Follow First')
+        odometry.rotate(nb,-90)
         line_follow(nb)
-        wall_follow()
-        rotate()
+        wall_follow(nb)
+        odometry.rotate(nb,90)
         while(true)
             if utils.onLine()
-                contiue
+                break
             end
         end
-        line_follow()
-        line_follow()
-        line_follow()
-        rotate()
-        line_follow()
-        rotate()
-        odometry()
+        line_follow(nb)
+        line_follow(nb)
+        line_follow(nb)
+        odometry.rotate(nb,180)
+        line_follow(nb)
+        odometry.rotate(nb,90)
+        line_follow(nb)
+        color = odometry.readColorSensor()
+        if(color.blue > 50)
+            odometry.rotate(30)
+            odometry.moveDistance(nb,40)
+        else
+            odometry.rotate(-30)
+            odometry.moveDistance(nb,40)
+        end
     case 1
         % Wall Follow
         tic

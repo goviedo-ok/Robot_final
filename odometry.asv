@@ -93,7 +93,7 @@ classdef odometry
             % Initialize variables
             totalCounts1 = 0;
             totalCounts2 = 0;
-            rotationSpeed = 10;
+            rotationSpeed = 40; % rotation speed (0-100)
             
             % Set direction based on angle sign
             if angle > 0
@@ -104,6 +104,9 @@ classdef odometry
                 rightDir = -1; % right wheel backward
             end
             
+            % Reset encoders
+            nb.encoderReset(1);
+            nb.encoderReset(2);
             
             % Main rotation loop
             while (abs(totalCounts1) + abs(totalCounts2))/2 < targetCounts
@@ -116,8 +119,8 @@ classdef odometry
                 totalCounts2 = totalCounts2 + enc2.counts;
                 
                 % Set motor powers with appropriate directions
-                nb.setMotor(1, leftDir * rotationSpeed);
-                nb.setMotor(2, rightDir * rotationSpeed);
+                nb.motorPower(1, leftDir * rotationSpeed);
+                nb.motorPower(2, rightDir * rotationSpeed);
                 
                 % Short delay
                 pause(0.05);

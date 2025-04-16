@@ -24,26 +24,39 @@ n = input('Enter a number: '); %Should be based on magic wand
 init_all(nb);
 
 switch n
-    case -1
-        % Line Follow
-        disp('Line Following')
-        rotate()
-        line_follow(nb)
-        wall_follow()
-        rotate()
-        line_follow()
-        line_follow()
-        line_follow()
-        rotate()
-        line_follow()
-        rotate()
-        odometry()
     case 0
+        % Wall Follow First
+        disp('Wall Follow First')
+        odometry.rotate(nb,-90)
+        line_follow(nb)
+        wall_follow(nb)
+        odometry.rotate(nb,90)
+        while(true)
+            if utils.onLine()
+                break
+            end
+        end
+        line_follow(nb)
+        line_follow(nb)
+        line_follow(nb)
+        odometry.rotate(nb,180)
+        line_follow(nb)
+        odometry.rotate(nb,90)
+        line_follow(nb)
+        
+    case 1
         % Wall Follow
+        tic
+        while(toc<1)
+        front = nb.ultrasonicRead1();
+        side = nb.ultrasonicRead2();
+        %Take a single ultrasonic reading
+        %fprintf('Front dist = %0.0f   Side dist = %0.0f\n', front, side);
+        pause(0.01)
+        end
         disp('Wall Following')
-        utils.turnTillLine()
-        values = [12.7, 45.4, 98.9, 26.6, 53.1];
-        [ave,stdev] = utils.stat(values);
+        line_follow(nb)
+        %wall_follow(nb)
     otherwise
         % Panic
         disp('!!!!')
@@ -63,5 +76,10 @@ function init_all(nb)
     % Initialize the reflectance array
     nb.initReflectance();
     % Initialize the ultrasonic sensor with TRIGPIN, ECHOPIN
-    %nb.initUltrasonic('D2','D3') % Use any of the digital pins, ex. D8, D7
+    % Front Face
+    nb.initUltrasonic1('D2','D3') % Use any of the digital pins, ex. D8, D7
+    % Side Face
+    nb.initUltrasonic2('D4','D5')
+    % Color sensor
+    nb.initColor();
 end
