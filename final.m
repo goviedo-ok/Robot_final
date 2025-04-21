@@ -18,6 +18,14 @@ clc
 clear all
 nb = nanobot('COM3', 115200, 'serial');
 
+%% EMERGENCY MOTOR SHUT OFF
+% If this section doesn't turn off the motors, turn off the power switch 
+% on your motor carrier board.
+
+% Clear motors
+nb.setMotor(1, 0);
+nb.setMotor(2, 0);
+
 %% MAIN
 n = input('Enter a number: '); %Should be based on magic wand
 
@@ -27,15 +35,10 @@ switch n
     case 0
         % Wall Follow First
         disp('Wall Follow First')
-        odometry.rotate(nb,-90)
+        odometry.rotate(nb,90)
         line_follow(nb)
         wall_follow(nb)
         odometry.rotate(nb,90)
-        while(true)
-            if utils.onLine()
-                break
-            end
-        end
         line_follow(nb)
         line_follow(nb)
         line_follow(nb)
@@ -43,8 +46,8 @@ switch n
         line_follow(nb)
         odometry.rotate(nb,90)
         line_follow(nb)
-        color = odometry.readColorSensor()
-        if(color.blue > 50)
+        color = odometry.readColorSensor(nb);
+        if(color.red > 100)
             odometry.rotate(30)
             odometry.moveDistance(nb,40)
         else
@@ -61,7 +64,8 @@ switch n
         %fprintf('Front dist = %0.0f   Side dist = %0.0f\n', front, side);
         pause(0.01)
         end
-        disp('Wall Following')
+        disp('Testing')
+        %odometry.rotate(nb,90);
         line_follow(nb)
         %wall_follow(nb)
     otherwise

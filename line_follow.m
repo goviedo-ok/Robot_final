@@ -6,18 +6,18 @@ function line_follow(nb)
     vals = nb.reflectanceRead();
     
     % Set the motor offset factor (use the value you found earlier)
-    mOffScale = 1.13;
+    mOffScale = 1.16;
     
     %min and max values
-    maxVals = [1.851800000000000e+03,1.272100000000000e+03,1.406700000000000e+03,9.837000000000000e+02,1.274400000000000e+03,1.528100000000000e+03];
-    minVals = [2.027000000000000e+02,1.509000000000000e+02,1.298000000000000e+02,1.287000000000000e+02,1.521000000000000e+02,1.763000000000000e+02];
+    maxVals = [1.421200000000000e+03,9.771000000000000e+02,9.549000000000000e+02,7.308000000000000e+02,8.351000000000000e+02,9.916000000000000e+02];
+    minVals = [1.902000000000000e+02,1.418000000000000e+02,1.255000000000000e+02,1.267000000000000e+02,1.406000000000000e+02,1.625000000000000e+02];
 
 
     % TUNING:
     % Start small (ESPECIALLY with the reflectance values, error can range 
     % from zero to several thousand!).
     % Tip: when tuning kd, it must be the opposite sign of kp to damp
-    kp = 2.5;
+    kp = 3.5;
     ki = 0.1;
     kd = -0.026;
     
@@ -92,7 +92,7 @@ function line_follow(nb)
     if control < -maxEncoderDuty
         control = -maxEncoderDuty;
     end
-    fprintf('Control - %.2f \n', control)
+    fprintf('Control: %.2f \n', control)
     
     % STATE CHECKING - stops robot if all sensors read white (lost tracking):
     if (vals(1) < whiteThresh && ...
@@ -103,10 +103,11 @@ function line_follow(nb)
             vals(6) < whiteThresh)
         % Stop the motors and exit the while loop
         disp('all white')
-        while(control > 1) 
-            nb.setMotor(1, (mOffScale * motorBaseSpeed));
-            nb.setMotor(2, -motorBaseSpeed);
-        end
+        %while(control > 1) 
+            nb.setMotor(1, -(mOffScale * motorBaseSpeed));
+            nb.setMotor(2, motorBaseSpeed);
+            pause(0.2)
+        %end
     elseif(vals(1) > blackThresh && ...
             vals(2) > blackThresh && ...
             vals(3) > blackThresh && ...

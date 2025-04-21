@@ -5,13 +5,17 @@ classdef odometry
         % Reads the RGB color sensor and returns a structure with the values
         function values = readColorSensor(nb)
             values = nb.colorRead();
+            red = values.red;
+            green = values.green;
+            blue = values.blue;
+            fprintf('red: %.2f, green: %.2f, blue: %.2f\n', red, green, blue);
         end
         
         % Moves the robot in a straight line for the specified distance
         function moveDistance(nb, distance)
             % Encoder Conversion Constants - based on robot geometry
-            wheelDiameter = 5.6;    % cm
-            wheelBase = 14.0;       % cm
+            wheelDiameter = 7;    % cm
+            wheelBase = 13.5;       % cm
             countsPerRotation = 1440; % encoder counts per wheel rotation
             distancePerCount = pi * wheelDiameter / countsPerRotation; % cm per encoder count
             
@@ -77,7 +81,7 @@ classdef odometry
         % Rotates the robot by the specified angle in degrees
         function rotate(nb, angle)
             % Encoder Conversion Constants - based on robot geometry
-            wheelDiameter = 5.6;    % cm (adjust to your robot's wheels)
+            wheelDiameter = 9.6;    % cm (adjust to your robot's wheels)
             wheelBase = 14.0;       % cm (distance between wheels)
             countsPerRotation = 1440; % encoder counts per wheel rotation
             distancePerCount = pi * wheelDiameter / countsPerRotation; % cm per encoder count
@@ -105,6 +109,7 @@ classdef odometry
             end
             
             
+            
             % Main rotation loop
             while (abs(totalCounts1) + abs(totalCounts2))/2 < targetCounts
                 % Read encoders
@@ -117,15 +122,15 @@ classdef odometry
                 
                 % Set motor powers with appropriate directions
                 nb.setMotor(1, leftDir * rotationSpeed);
-                nb.setMotor(2, rightDir * rotationSpeed);
+                nb.setMotor(2, -(rightDir * rotationSpeed));
                 
                 % Short delay
                 pause(0.05);
             end
             
             % Stop motors when target is reached
-            nb.motorPower(1, 0);
-            nb.motorPower(2, 0);
+            nb.setMotor(1, 0);
+            nb.setMotor(2, 0);
         end
     end
 end

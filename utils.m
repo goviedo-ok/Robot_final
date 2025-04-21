@@ -23,7 +23,7 @@ classdef utils
         function kickMotors(nb, mOffScale)
             nb.setMotor(1, mOffScale * 13);
             nb.setMotor(2, -13);
-            pause(0.3)
+            pause(0.1)
         end
         
         %attemptCenter(): once a line is detected under the reflectance array, 
