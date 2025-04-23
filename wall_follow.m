@@ -10,14 +10,14 @@ function wall_follow(nb)
     
     
     % Set the motor offset factor (use the value you found earlier)
-    mOffScale = 1.13;
+    mOffScale = 0.95;
     
     %Tuning
-    kp = 3;
+    kp = 2;
     ki = 0.1;
     kd = -0.026;
 
-    desired_distance = 30;
+    desired_distance = 10;
 
     % Basic initialization
     vals = 0;
@@ -28,15 +28,22 @@ function wall_follow(nb)
 
     % The base duty cycle "speed" you wish to travel down the line with
     % (recommended values are 9 or 10)
-    motorBaseSpeed = 11;
+    motorBaseSpeed = 10;
 
+    disp('approaching wall')
     utils.approachWall(nb)
-    
+    disp('Wall seen')
+
+    odometry.rotate(nb,90);
+    odometry.rotate(nb,100);
+
+
+
     tic
     utils.kickMotors(nb,mOffScale)
-    pause(0.1);
+    pause(0.5)
     % Advancing
-    while (toc < 5)
+    while (~utils.allDark(nb))
         % TIME STEP
         dt = toc - prevTime;
         prevTime = toc;
@@ -66,8 +73,8 @@ function wall_follow(nb)
             control = 2.5;
         end
 
-        m1Duty = (mOffScale * motorBaseSpeed) + control;
-        m2Duty = -(motorBaseSpeed-control);
+        m1Duty = (mOffScale * motorBaseSpeed) - control;
+        m2Duty = -(motorBaseSpeed+control);
 
         nb.setMotor(1, m1Duty);
         nb.setMotor(2, m2Duty);
@@ -75,7 +82,7 @@ function wall_follow(nb)
     end
     nb.setMotor(1, 0);
     nb.setMotor(2, 0);
-    pause(0.05)
+    pause(0.03)
 end
 
 % Wall follwing and Stop Condition

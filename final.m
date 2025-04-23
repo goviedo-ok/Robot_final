@@ -14,60 +14,83 @@
 %%%%%%%%%%%%%%
 
 %% CONNECT TO YOUR NANOBOT
-clc
-clear all
 nb = nanobot('COM3', 115200, 'serial');
 
-%% EMERGENCY MOTOR SHUT OFF
-% If this section doesn't turn off the motors, turn off the power switch 
-% on your motor carrier board.
-
-% Clear motors
-nb.setMotor(1, 0);
-nb.setMotor(2, 0);
+nb_gest = nanobot('COM6', 115200, 'serial');
 
 %% MAIN
-n = input('Enter a number: '); %Should be based on magic wand
+
+n = gesture(nb_gest); %Should be based on magic wand
 
 init_all(nb);
 
 switch n
     case 0
         % Wall Follow First
-        disp('Wall Follow First')
+        disp('Line Follow')
+        odometry.rotate(nb,1)
         odometry.rotate(nb,90)
         line_follow(nb)
         wall_follow(nb)
+        odometry.rotate(nb,90)
         odometry.rotate(nb,90)
         line_follow(nb)
         line_follow(nb)
         line_follow(nb)
         odometry.rotate(nb,180)
         line_follow(nb)
-        odometry.rotate(nb,90)
+        odometry.rotate(nb,-90)
         line_follow(nb)
+        disp('color yay')
         color = odometry.readColorSensor(nb);
-        if(color.red > 100)
-            odometry.rotate(30)
-            odometry.moveDistance(nb,40)
+        if(color.blue > 50)
+            odometry.rotate(nb, 30)
+            while(color.blue > 100)
+            nb.setMotor(1,10)
+            nb.setMotor(2,-13)
+            end
         else
-            odometry.rotate(-30)
-            odometry.moveDistance(nb,40)
+            odometry.rotate(nb, -30)
+            while(color.red > 100)
+            nb.setMotor(1,10)
+            nb.setMotor(2,-13)
+            end
+        nb.setMotor(1,0)
+        nb.setMotor(2,0)
         end
     case 1
-        % Wall Follow
-        tic
-        while(toc<1)
-        front = nb.ultrasonicRead1();
-        side = nb.ultrasonicRead2();
-        %Take a single ultrasonic reading
-        %fprintf('Front dist = %0.0f   Side dist = %0.0f\n', front, side);
-        pause(0.01)
-        end
-        disp('Testing')
-        %odometry.rotate(nb,90);
+        % Wall Follow First
+        disp('Line Follow')
+        odometry.rotate(nb,-90)
+        odometry.rotate(nb,-90)
         line_follow(nb)
-        %wall_follow(nb)
+        odometry.rotate(nb,180)
+        line_follow(nb)
+        line_follow(nb)
+        wall_follow(nb)
+        odometry.rotate(nb,90)
+        odometry.rotate(nb,90)
+        line_follow(nb)      
+        line_follow(nb)  
+        odometry.rotate(nb,-90)
+        line_follow(nb)
+        disp('color yay')
+        color = odometry.readColorSensor(nb);
+        if(color.blue > 50)
+            odometry.rotate(nb, -30)
+            while(color.blue > 100)
+            nb.setMotor(1,10)
+            nb.setMotor(2,-13)
+            end
+        else
+            odometry.rotate(nb, 30)
+            while(color.red > 100)
+            nb.setMotor(1,10)
+            nb.setMotor(2,-13)
+            end
+        nb.setMotor(1,0)
+        nb.setMotor(2,0)
+        end
     otherwise
         % Panic
         disp('!!!!')
@@ -82,6 +105,28 @@ delete(nb);
 clear('nb');
 clear all
 
+%% TESTING
+init_all(nb);
+color = odometry.readColorSensor(nb);
+if(color.blue > 50)
+    odometry.rotate(nb, -30)
+    while(color.blue > 100)
+    nb.setMotor(1,10)
+    nb.setMotor(2,-13)
+    end
+else
+    odometry.rotate(nb, 30)
+    while(color.red > 100)
+    nb.setMotor(1,10)
+    nb.setMotor(2,-13)
+    end
+end
+nb.setMotor(1,0)
+nb.setMotor(2,0)
+%% MOTOR OFF
+nb.setMotor(2,0)
+nb.setMotor(1,0)
+
 %% LOCAL FUNCTIONS
 function init_all(nb)
     % Initialize the reflectance array
@@ -94,3 +139,62 @@ function init_all(nb)
     % Color sensor
     nb.initColor();
 end
+
+function n = gesture(nb)
+    if ~exist('myNeuralNetwork', 'var')
+        if isfile("trainedGestureNet.mat")
+            load("trainedGestureNet.mat", "myNeuralNetwork");
+        else
+            error("Trained neural network file 'trainedGestureNet.mat' not found.");
+        end
+    end
+
+    % collect gesture
+    nb.ledWrite(0); % turn off the LED
+    numreads = 150;
+    pause(.5);
+    countdown(3);
+    disp("Make A Gesture!");
+    nb.ledWrite(1);  % start recording
+
+    % Read gesture data
+    for i = 1:numreads
+        val = nb.accelRead();
+        vals(1,i) = val.x;
+        vals(2,i) = val.y;
+        vals(3,i) = val.z;
+    end
+    nb.ledWrite(0); % stop recording
+
+    rtdata = [vals(1,:); vals(2,:); vals(3,:)];
+
+    % Format for network input
+    xTestLive = zeros(3,150,1,1);
+    xTestLive(:,:,1,1) = rtdata;
+
+    % Predict gesture
+    prediction = classify(myNeuralNetwork, xTestLive);
+    predStr = string(prediction);  % convert to string (e.g., "0" or "1")
+
+    % Output 1 only if prediction is "1"
+    if predStr == "1"
+        n = 1;
+    else
+        n = 0;
+    end
+
+    % Plot gesture
+    figure(); plot(rtdata', 'LineWidth', 1.5);
+    legend('X','Y','Z');
+    ylabel('Acceleration'); xlabel('Time');
+    title("Classification: " + predStr);
+end
+
+% Countdown helper
+function countdown(n)
+    for i = n:-1:0
+        fprintf('%d\n', i);
+        pause(1);
+    end
+end
+

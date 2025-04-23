@@ -6,7 +6,7 @@ function line_follow(nb)
     vals = nb.reflectanceRead();
     
     % Set the motor offset factor (use the value you found earlier)
-    mOffScale = 1.16;
+    mOffScale = 0.95;
     
     %min and max values
     maxVals = [1.421200000000000e+03,9.771000000000000e+02,9.549000000000000e+02,7.308000000000000e+02,8.351000000000000e+02,9.916000000000000e+02];
@@ -17,7 +17,7 @@ function line_follow(nb)
     % Start small (ESPECIALLY with the reflectance values, error can range 
     % from zero to several thousand!).
     % Tip: when tuning kd, it must be the opposite sign of kp to damp
-    kp = 3.5;
+    kp = 1;
     ki = 0.1;
     kd = -0.026;
     
@@ -36,8 +36,8 @@ function line_follow(nb)
     
     % The base duty cycle "speed" you wish to travel down the line with
     % (recommended values are 9 or 10)
-    motorBaseSpeed = 11;
-    maxEncoderDuty = 2;
+    motorBaseSpeed = 10;
+    maxEncoderDuty = 3;
     
     tic
     % It can be helpful to initialize your motors to a fixed higher duty cycle
@@ -103,10 +103,9 @@ function line_follow(nb)
             vals(6) < whiteThresh)
         % Stop the motors and exit the while loop
         disp('all white')
-        %while(control > 1) 
-            nb.setMotor(1, -(mOffScale * motorBaseSpeed));
-            nb.setMotor(2, motorBaseSpeed);
-            pause(0.2)
+        %while(control > 1)
+        nb.setMotor(1, -(mOffScale * 13));
+        nb.setMotor(2, 13);
         %end
     elseif(vals(1) > blackThresh && ...
             vals(2) > blackThresh && ...

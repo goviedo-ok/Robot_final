@@ -23,7 +23,7 @@ classdef utils
         function kickMotors(nb, mOffScale)
             nb.setMotor(1, mOffScale * 13);
             nb.setMotor(2, -13);
-            pause(0.1)
+            pause(0.5)
         end
         
         %attemptCenter(): once a line is detected under the reflectance array, 
@@ -36,7 +36,7 @@ classdef utils
         %approachWall(): drives in a straight line until the front ultrasonic 
         %sensor reads below a certain value.
         function approachWall(nb)
-            mOffScale = 0.95; % Start with 1 so both motors have same duty cycle.
+            mOffScale = 1.16; % Start with 1 so both motors have same duty cycle.
 
             motorBaseSpeed = 11;
             
@@ -56,6 +56,7 @@ classdef utils
             % Turn off the motors
             nb.setMotor(1, 0);
             nb.setMotor(2, 0);
+            pause(1);
         end
         
         %setMotorsToZero(): sets the motors on the robot to 0% duty cycle
@@ -65,8 +66,20 @@ classdef utils
         
         %allDark(): checks the reflectance array values to see if all of the values
         %are above the threshold needed to classify as "dark.” Returns true/false.
-        function isDark = allDark()
-            isDark=true;
+        function isDark = allDark(nb)
+            vals = nb.reflectanceRead();
+            vals = [vals.one, vals.two, vals.three, vals.four, vals.five, vals.six];
+            blackThresh = 850;
+            if(vals(1) > blackThresh && ...
+            vals(2) > blackThresh && ...
+            vals(3) > blackThresh && ...
+            vals(4) > blackThresh && ...
+            vals(5) > blackThresh && ...
+            vals(6) > blackThresh)  
+            isDark = true;
+            else
+            isDark=false;
+            end
         end
         
         %turnOffLine(): moves the reflectance array off of a line or bar by turning

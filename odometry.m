@@ -14,8 +14,8 @@ classdef odometry
         % Moves the robot in a straight line for the specified distance
         function moveDistance(nb, distance)
             % Encoder Conversion Constants - based on robot geometry
-            wheelDiameter = 7;    % cm
-            wheelBase = 13.5;       % cm
+            wheelDiameter = 9.6;    % cm
+            wheelBase = 14.0;       % cm
             countsPerRotation = 1440; % encoder counts per wheel rotation
             distancePerCount = pi * wheelDiameter / countsPerRotation; % cm per encoder count
             
@@ -33,10 +33,6 @@ classdef odometry
             totalCounts1 = 0;
             totalCounts2 = 0;
             motorBaseSpeed = 12;
-            
-            % Reset encoders
-            nb.encoderReset(1);
-            nb.encoderReset(2);
             
             % Main control loop
             while (totalCounts1 + totalCounts2)/2 < targetCounts
@@ -61,21 +57,28 @@ classdef odometry
                 leftSpeed = motorBaseSpeed - correction;
                 rightSpeed = motorBaseSpeed + correction;
                 
-                % Motor Speed Capping to ensure values stay within valid range
-                leftSpeed = max(0, min(100, leftSpeed));
-                rightSpeed = max(0, min(100, rightSpeed));
-                
+                if(leftSpeed > 13)
+                    leftSpeed = 13;
+                elseif(leftSpeed < 0)
+                    leftSpeed = 0;
+                end
+                if(rightSpeed > 13)
+                    rightSpeed = 13;
+                elseif(rightSpeed < 0)
+                    rightSpeed = 0;
+                end
+
                 % Set motor speeds
-                nb.motorPower(1, leftSpeed);
-                nb.motorPower(2, rightSpeed);
+                nb.setMotor(1, rightSpeed);
+                nb.setMotor(2, -leftSpeed);
                 
                 % Short delay
                 pause(0.05);
             end
             
             % Stop motors when target is reached
-            nb.motorPower(1, 0);
-            nb.motorPower(2, 0);
+            nb.setMotor(1, 0);
+            nb.setMotor(2, 0);
         end
         
         % Rotates the robot by the specified angle in degrees
